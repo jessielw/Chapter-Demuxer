@@ -10,7 +10,7 @@ from pymediainfo import MediaInfo
 chap_extract_win = TkinterDnD.Tk()  # Main loop with DnD.Tk() module (for drag and drop)
 chap_extract_win.title('Chapter-Extracting-Tool 1.0')  # Sets the version of the program
 chap_extract_win.configure(background="#434547")  # Sets gui background color
-window_height = 276  # Gui window height
+window_height = 250  # Gui window height
 window_width = 446  # Gui window width
 screen_width = chap_extract_win.winfo_screenwidth()  # down
 screen_height = chap_extract_win.winfo_screenheight()  # down
@@ -20,6 +20,10 @@ chap_extract_win.geometry(f'{window_width}x{window_height}+{x_coordinate}+{y_coo
 
 chap_extract_win.rowconfigure(3, weight=1)
 chap_extract_win.grid_columnconfigure(2, weight=1)
+
+
+mkvextract = r'"Apps\mkvextract\mkvextract.exe"'
+mp4box = r'"Apps\mp4box\mp4box.exe"'
 
 
 # Hover over button theme ---------------------------------------
@@ -38,15 +42,8 @@ class HoverButton(Button):
 
 
 # --------------------------------------- Hover over button theme
-
-
-audio_title_entrybox_label = Label(chap_extract_win, text='Chapter Extractor Tool (MKV and MP4)', anchor=CENTER,
-                                   background='#434547', foreground='green')
-audio_title_entrybox_label.grid(row=0, column=2, columnspan=1, padx=20, pady=(5, 0), sticky=W + E)
-audio_title_entrybox_label.config(font=('Arial Black', 11))
-
 chapter_extract = LabelFrame(chap_extract_win, text=' Chapter Extraction ')
-chapter_extract.grid(row=1, columnspan=3, sticky=E + W + N + S, padx=20, pady=(5, 0))
+chapter_extract.grid(row=0, columnspan=3, sticky=E + W + N + S, padx=20, pady=(5, 0))
 chapter_extract.configure(fg="white", bg="#434547", bd=4)
 
 chapter_extract.grid_columnconfigure(0, weight=1)
@@ -89,6 +86,7 @@ def input_button_commands():  # Open file block of code (non drag and drop)
             chap_output_entry.insert(0, str(autosave_file_dir))
             chap_output_entry.configure(state=DISABLED)
             extract_button.configure(state=NORMAL)
+            status_label.configure(text='Select Extract')
         else:
             messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
                                                                      'Unsupported file extension "' +
@@ -137,6 +135,7 @@ def update_file_input(*args):  # Drag and drop block of code
             chap_output_entry.insert(0, str(autosave_file_dir))
             chap_output_entry.configure(state=DISABLED)
             extract_button.configure(state=NORMAL)
+            status_label.configure(text='Select Extract')
         else:
             messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
                                                                      'Unsupported file extension "' +
@@ -185,8 +184,6 @@ chap_output_entry.grid(row=1, column=1, columnspan=2, padx=(5, 10), pady=(40, 5)
 
 def start_job():
     global output
-    mkvextract = r'"C:\Users\jlw_4\Desktop\mkvtoolnix\mkvextract.exe"'
-    mp4box = r'"C:\Users\jlw_4\Desktop\mp4box.exe"'
     output_quoted = f'"{output}"'
 
     if extension_type == '.mp4':
@@ -196,14 +193,17 @@ def start_job():
 
     subprocess.check_output('cmd /c ' + finalcommand, universal_newlines=True,
                             creationflags=subprocess.CREATE_NO_WINDOW)
-    print(output)
-    print(pathlib.Path(output))
+
     if pathlib.Path(output).is_file():
-        print('yes maaaaaaam!')
+        status_label.configure(text='Completed!')
 
 
 extract_button = HoverButton(chap_extract_win, text='Extract', command=start_job, foreground='white',
                              background='#23272A', borderwidth='3', activebackground='grey', width=15, state=DISABLED)
-extract_button.grid(row=2, column=2, columnspan=1, padx=(20, 20), pady=(40, 10), sticky=W + E)
+extract_button.grid(row=2, column=2, columnspan=1, padx=(20, 20), pady=(20, 5), sticky=W + E)
+
+status_label = Label(chap_extract_win, text='Select "Input" or drag and drop a MKV or MP4 file to begin...',
+                     bd=4, relief=SUNKEN, anchor=E, background='#717171', foreground="white")
+status_label.grid(column=0, row=3, columnspan=4, sticky=W + E, pady=(0, 2), padx=5)
 
 chap_extract_win.mainloop()
