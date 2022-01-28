@@ -105,71 +105,36 @@ def video_drop_input(event):  # Drag and drop function
 
 
 def update_file_input(*args):  # Drag and drop block of code
-    global chapter_source_input, autofilesave_dir_path, VideoInputQuoted, output, autosavefilename, detect_video_fps, \
-        fps_entry, output_quoted
+    global chapter_source_input, autofilesave_dir_path, VideoInputQuoted, output, autosavefilename, output_quoted
     chap_input_entry.configure(state=NORMAL)
     chap_input_entry.delete(0, END)
     chapter_source_input = str(input_dnd.get()).replace("{", "").replace("}", "")
     if chapter_source_input.endswith(('.mp4', '.mkv')):
         if chapter_source_input.endswith('.mp4'):
-            pass
+            extension_type = '.mp4'
         if chapter_source_input.endswith('.mkv'):
-            pass
+            extension_type = '.mkv'
         autofilesave_file_path = pathlib.Path(chapter_source_input)  # Command to get file input location
         autofilesave_dir_path = autofilesave_file_path.parents[0]  # Final command to get only the directory
         VideoInputQuoted = '"' + str(pathlib.Path(chapter_source_input)) + '"'
         chap_input_entry.insert(0, str(input_dnd.get()).replace("{", "").replace("}", ""))
+        chap_input_entry.configure(state=DISABLED)
         filename = pathlib.Path(chapter_source_input)
         chapt_input_filename = filename.with_suffix('')
         autosavefilename = str(chapt_input_filename.name) + '.Extracted_Chapters'
         autosave_file_dir = pathlib.Path(str(f'{autofilesave_dir_path}\\') + str(autosavefilename + '.txt'))
-    #     output = str(autosave_file_dir)
-    #     output_quoted = '"' + output + '"'
-    #     input_entry.configure(state=DISABLED)
-    #     video_title_entrybox.configure(state=NORMAL)
-    #     output_entry.configure(state=NORMAL)
-    #     output_entry.delete(0, END)
-    #     output_entry.configure(state=DISABLED)
-    #     output_entry.configure(state=NORMAL)
-    #     output_entry.insert(0, str(autosave_file_dir))
-    #     output_entry.configure(state=DISABLED)
-    #     output_button.configure(state=NORMAL)
-    #     audio_input_button.configure(state=NORMAL)
-    #     subtitle_input_button.configure(state=NORMAL)
-    #     chapter_input_button.configure(state=NORMAL)
-    #     output_button.configure(state=NORMAL)
-    #     start_button.configure(state=NORMAL)
-    #     show_command.configure(state=NORMAL)
-    #     media_info = MediaInfo.parse(filename)
-    #     for track in media_info.tracks:
-    #         if track.track_type == "Video":
-    #             detect_video_fps = track.frame_rate
-    #             fps_entry.configure(state=NORMAL)
-    #             fps_entry.delete(0, END)
-    #             fps_entry.insert(0, detect_video_fps)
-    #             fps_entry.configure(state=DISABLED)
-    #             try:
-    #                 detect_index = [len(i) for i in track.other_language].index(3)
-    #                 language_index = list(iso_639_2_codes_dictionary.values()).index(
-    #                     track.other_language[detect_index])
-    #                 video_combo_language.current(language_index)
-    #                 video_title_entrybox.delete(0, END)
-    #                 video_title_entrybox.insert(0, track.title)
-    #             except(Exception,):
-    #                 pass
-    # else:
-    #     messagebox.showinfo(title='Input Not Supported',
-    #                         message="Try Again With a Supported File Type!\n\nIf this is a "
-    #                                 "file that should be supported, please let me know.\n\n"
-    #                                 + 'Unsupported file extension "' +
-    #                                 str(pathlib.Path(chapter_source_input).suffix) + '"')
-    #     video_combo_language.current(0)
-    #     video_title_entrybox.delete(0, END)
-    #     fps_entry.configure(state=NORMAL)
-    #     fps_entry.delete(0, END)
-    #     fps_entry.configure(state=DISABLED)
-    #     del detect_video_fps
-    #     del VideoInput
+        output = str(autosave_file_dir)
+        output_quoted = '"' + output + '"'
+        chap_output_entry.configure(state=NORMAL)
+        chap_output_entry.delete(0, END)
+        chap_output_entry.insert(0, str(autosave_file_dir))
+        chap_output_entry.configure(state=DISABLED)
+        extract_button.configure(state=NORMAL)
+    else:
+        messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
+                                                                 'Unsupported file extension "' +
+                                                                 str(pathlib.Path(chapter_source_input).suffix) + '"')
+        extract_button.configure(state=DISABLED)
 
 
 # --------------------------------------------------------------------------------------------- Drag and Drop Functions
@@ -195,7 +160,7 @@ chap_output_entry = Entry(chapter_extract, borderwidth=4, background='#CACACA', 
 chap_output_entry.grid(row=1, column=1, columnspan=2, padx=(5, 10), pady=(40, 5), sticky=W + E)
 
 extract_button = Button(chap_extract_win, text='Extract', command=input_button_commands, foreground='white',
-                           background='#23272A', borderwidth='3', activebackground='grey', width=15)
+                           background='#23272A', borderwidth='3', activebackground='grey', width=15, state=DISABLED)
 extract_button.grid(row=2, column=2, columnspan=1, padx=(20, 20), pady=(40, 10), sticky=W + E)
 
 
