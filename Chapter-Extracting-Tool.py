@@ -61,32 +61,40 @@ def input_button_commands():  # Open file block of code (non drag and drop)
     chap_input_entry.configure(state=NORMAL)
     chap_input_entry.delete(0, END)
     chapter_source_input = source_input
-    if chapter_source_input.endswith(('.mp4', '.mkv')):
-        if chapter_source_input.endswith('.mp4'):
-            extension_type = '.mp4'
-        if chapter_source_input.endswith('.mkv'):
-            extension_type = '.mkv'
-        autofilesave_file_path = pathlib.Path(chapter_source_input)  # Command to get file input location
-        autofilesave_dir_path = autofilesave_file_path.parents[0]  # Final command to get only the directory
-        VideoInputQuoted = '"' + str(pathlib.Path(chapter_source_input)) + '"'
-        chap_input_entry.insert(0, str(chapter_source_input))
-        chap_input_entry.configure(state=DISABLED)
-        filename = pathlib.Path(chapter_source_input)
-        chapt_input_filename = filename.with_suffix('')
-        autosavefilename = str(chapt_input_filename.name) + '.Extracted_Chapters'
-        autosave_file_dir = pathlib.Path(str(f'{autofilesave_dir_path}\\') + str(autosavefilename + '.txt'))
-        output = str(autosave_file_dir)
-        output_quoted = '"' + output + '"'
-        chap_output_entry.configure(state=NORMAL)
-        chap_output_entry.delete(0, END)
-        chap_output_entry.insert(0, str(autosave_file_dir))
-        chap_output_entry.configure(state=DISABLED)
-        extract_button.configure(state=NORMAL)
-    else:
-        messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
-                                                                 'Unsupported file extension "' +
-                                                                 str(pathlib.Path(chapter_source_input).suffix) + '"')
-        extract_button.configure(state=DISABLED)
+    media_info = MediaInfo.parse(pathlib.Path(chapter_source_input))
+    for track in media_info.tracks:
+        if track.track_type == 'General':
+            detect_chapters = track.count_of_menu_streams
+    if detect_chapters is None:
+        messagebox.showerror(title='Error', message='Input has no chapters')
+    elif detect_chapters is not None:
+        if chapter_source_input.endswith(('.mp4', '.mkv')):
+            if chapter_source_input.endswith('.mp4'):
+                extension_type = '.mp4'
+            if chapter_source_input.endswith('.mkv'):
+                extension_type = '.mkv'
+            autofilesave_file_path = pathlib.Path(chapter_source_input)  # Command to get file input location
+            autofilesave_dir_path = autofilesave_file_path.parents[0]  # Final command to get only the directory
+            VideoInputQuoted = '"' + str(pathlib.Path(chapter_source_input)) + '"'
+            chap_input_entry.insert(0, str(input_dnd.get()).replace("{", "").replace("}", ""))
+            chap_input_entry.configure(state=DISABLED)
+            filename = pathlib.Path(chapter_source_input)
+            chapt_input_filename = filename.with_suffix('')
+            autosavefilename = str(chapt_input_filename.name) + '.Extracted_Chapters'
+            autosave_file_dir = pathlib.Path(str(f'{autofilesave_dir_path}\\') + str(autosavefilename + '.txt'))
+            output = str(autosave_file_dir)
+            output_quoted = '"' + output + '"'
+            chap_output_entry.configure(state=NORMAL)
+            chap_output_entry.delete(0, END)
+            chap_output_entry.insert(0, str(autosave_file_dir))
+            chap_output_entry.configure(state=DISABLED)
+            extract_button.configure(state=NORMAL)
+        else:
+            messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
+                                                                     'Unsupported file extension "' +
+                                                                     str(pathlib.Path(chapter_source_input).suffix) +
+                                                                     '"')
+            extract_button.configure(state=DISABLED)
 
 
 # ---------------------------------------------------------------------------------------------- Input Functions Button
@@ -101,32 +109,40 @@ def update_file_input(*args):  # Drag and drop block of code
     chap_input_entry.configure(state=NORMAL)
     chap_input_entry.delete(0, END)
     chapter_source_input = str(input_dnd.get()).replace("{", "").replace("}", "")
-    if chapter_source_input.endswith(('.mp4', '.mkv')):
-        if chapter_source_input.endswith('.mp4'):
-            extension_type = '.mp4'
-        if chapter_source_input.endswith('.mkv'):
-            extension_type = '.mkv'
-        autofilesave_file_path = pathlib.Path(chapter_source_input)  # Command to get file input location
-        autofilesave_dir_path = autofilesave_file_path.parents[0]  # Final command to get only the directory
-        VideoInputQuoted = '"' + str(pathlib.Path(chapter_source_input)) + '"'
-        chap_input_entry.insert(0, str(input_dnd.get()).replace("{", "").replace("}", ""))
-        chap_input_entry.configure(state=DISABLED)
-        filename = pathlib.Path(chapter_source_input)
-        chapt_input_filename = filename.with_suffix('')
-        autosavefilename = str(chapt_input_filename.name) + '.Extracted_Chapters'
-        autosave_file_dir = pathlib.Path(str(f'{autofilesave_dir_path}\\') + str(autosavefilename + '.txt'))
-        output = str(autosave_file_dir)
-        output_quoted = '"' + output + '"'
-        chap_output_entry.configure(state=NORMAL)
-        chap_output_entry.delete(0, END)
-        chap_output_entry.insert(0, str(autosave_file_dir))
-        chap_output_entry.configure(state=DISABLED)
-        extract_button.configure(state=NORMAL)
-    else:
-        messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
-                                                                 'Unsupported file extension "' +
-                                                                 str(pathlib.Path(chapter_source_input).suffix) + '"')
-        extract_button.configure(state=DISABLED)
+    media_info = MediaInfo.parse(pathlib.Path(chapter_source_input))
+    for track in media_info.tracks:
+        if track.track_type == 'General':
+            detect_chapters = track.count_of_menu_streams
+    if detect_chapters is None:
+        messagebox.showerror(title='Error', message='Input has no chapters')
+    elif detect_chapters is not None:
+        if chapter_source_input.endswith(('.mp4', '.mkv')):
+            if chapter_source_input.endswith('.mp4'):
+                extension_type = '.mp4'
+            if chapter_source_input.endswith('.mkv'):
+                extension_type = '.mkv'
+            autofilesave_file_path = pathlib.Path(chapter_source_input)  # Command to get file input location
+            autofilesave_dir_path = autofilesave_file_path.parents[0]  # Final command to get only the directory
+            VideoInputQuoted = '"' + str(pathlib.Path(chapter_source_input)) + '"'
+            chap_input_entry.insert(0, str(input_dnd.get()).replace("{", "").replace("}", ""))
+            chap_input_entry.configure(state=DISABLED)
+            filename = pathlib.Path(chapter_source_input)
+            chapt_input_filename = filename.with_suffix('')
+            autosavefilename = str(chapt_input_filename.name) + '.Extracted_Chapters'
+            autosave_file_dir = pathlib.Path(str(f'{autofilesave_dir_path}\\') + str(autosavefilename + '.txt'))
+            output = str(autosave_file_dir)
+            output_quoted = '"' + output + '"'
+            chap_output_entry.configure(state=NORMAL)
+            chap_output_entry.delete(0, END)
+            chap_output_entry.insert(0, str(autosave_file_dir))
+            chap_output_entry.configure(state=DISABLED)
+            extract_button.configure(state=NORMAL)
+        else:
+            messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
+                                                                     'Unsupported file extension "' +
+                                                                     str(pathlib.Path(chapter_source_input).suffix) +
+                                                                     '"')
+            extract_button.configure(state=DISABLED)
 
 
 # --------------------------------------------------------------------------------------------- Drag and Drop Functions
@@ -161,7 +177,7 @@ def output_button_commands():
 
 
 chap_output_button = HoverButton(chapter_extract, text='Output', command=output_button_commands, foreground='white',
-                            background='#23272A', borderwidth='3', activebackground='grey', width=15)
+                                 background='#23272A', borderwidth='3', activebackground='grey', width=15)
 chap_output_button.grid(row=1, column=0, columnspan=1, padx=(10, 5), pady=(40, 5), sticky=W + E)
 chap_output_entry = Entry(chapter_extract, borderwidth=4, background='#CACACA', state=DISABLED, width=30)
 chap_output_entry.grid(row=1, column=1, columnspan=2, padx=(5, 10), pady=(40, 5), sticky=W + E)
