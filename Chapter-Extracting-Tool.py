@@ -1,9 +1,11 @@
 # Import the required libraries
 from tkinter import filedialog, StringVar, ttk, messagebox, PhotoImage, Menu, LabelFrame, E, N, S, W, Label, \
-    Entry, DISABLED, NORMAL, END, Frame, Spinbox, CENTER, Checkbutton, HORIZONTAL, Toplevel, SUNKEN, OptionMenu, Button
+    Entry, DISABLED, NORMAL, END, Frame, Spinbox, CENTER, Checkbutton, HORIZONTAL, Toplevel, SUNKEN, OptionMenu, \
+    Button
 
 from TkinterDnD2 import *
 import subprocess, pathlib
+from pymediainfo import MediaInfo
 
 chap_extract_win = TkinterDnD.Tk()  # Main loop with DnD.Tk() module (for drag and drop)
 chap_extract_win.title('Chapter-Extracting-Tool 1.0')  # Sets the version of the program
@@ -18,6 +20,25 @@ chap_extract_win.geometry(f'{window_width}x{window_height}+{x_coordinate}+{y_coo
 
 chap_extract_win.rowconfigure(3, weight=1)
 chap_extract_win.grid_columnconfigure(2, weight=1)
+
+
+# Hover over button theme ---------------------------------------
+class HoverButton(Button):
+    def __init__(self, master, **kw):
+        Button.__init__(self, master=master, **kw)
+        self.defaultBackground = self["background"]
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+
+    def on_enter(self, e):
+        self['background'] = self['activebackground']
+
+    def on_leave(self, e):
+        self['background'] = self.defaultBackground
+
+
+# --------------------------------------- Hover over button theme
+
 
 audio_title_entrybox_label = Label(chap_extract_win, text='Chapter Extractor Tool (MKV and MP4)', anchor=CENTER,
                                    background='#434547', foreground='green')
@@ -112,7 +133,7 @@ def update_file_input(*args):  # Drag and drop block of code
 
 input_dnd = StringVar()
 input_dnd.trace('w', update_file_input)
-chap_input_button = Button(chapter_extract, text='Input', command=input_button_commands, foreground='white',
+chap_input_button = HoverButton(chapter_extract, text='Input', command=input_button_commands, foreground='white',
                            background='#23272A', borderwidth='3', activebackground='grey', width=15)
 chap_input_button.grid(row=0, column=0, columnspan=1, padx=(10, 5), pady=5, sticky=W + E)
 chap_input_button.drop_target_register(DND_FILES)
@@ -139,13 +160,13 @@ def output_button_commands():
         chap_output_entry.configure(state=DISABLED)
 
 
-chap_output_button = Button(chapter_extract, text='Output', command=output_button_commands, foreground='white',
+chap_output_button = HoverButton(chapter_extract, text='Output', command=output_button_commands, foreground='white',
                             background='#23272A', borderwidth='3', activebackground='grey', width=15)
 chap_output_button.grid(row=1, column=0, columnspan=1, padx=(10, 5), pady=(40, 5), sticky=W + E)
 chap_output_entry = Entry(chapter_extract, borderwidth=4, background='#CACACA', state=DISABLED, width=30)
 chap_output_entry.grid(row=1, column=1, columnspan=2, padx=(5, 10), pady=(40, 5), sticky=W + E)
 
-extract_button = Button(chap_extract_win, text='Extract', command=input_button_commands, foreground='white',
+extract_button = HoverButton(chap_extract_win, text='Extract', command=input_button_commands, foreground='white',
                         background='#23272A', borderwidth='3', activebackground='grey', width=15, state=DISABLED)
 extract_button.grid(row=2, column=2, columnspan=1, padx=(20, 20), pady=(40, 10), sticky=W + E)
 
