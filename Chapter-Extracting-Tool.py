@@ -55,7 +55,7 @@ chapter_extract.grid_rowconfigure(0, weight=1)
 
 def input_button_commands():  # Open file block of code (non drag and drop)
     global VideoInput, autosavefilename, autofilesave_dir_path, VideoInputQuoted, output, detect_video_fps, \
-        fps_entry, output_quoted
+        fps_entry, output_quoted, extension_type
     source_input = filedialog.askopenfilename(initialdir="/", title="Select A File",
                                               filetypes=[("Supported Formats", ('.mp4', '.mkv'))])
     chap_input_entry.configure(state=NORMAL)
@@ -76,7 +76,7 @@ def input_button_commands():  # Open file block of code (non drag and drop)
             autofilesave_file_path = pathlib.Path(chapter_source_input)  # Command to get file input location
             autofilesave_dir_path = autofilesave_file_path.parents[0]  # Final command to get only the directory
             VideoInputQuoted = '"' + str(pathlib.Path(chapter_source_input)) + '"'
-            chap_input_entry.insert(0, str(input_dnd.get()).replace("{", "").replace("}", ""))
+            chap_input_entry.insert(0, pathlib.Path(str(chapter_source_input)))
             chap_input_entry.configure(state=DISABLED)
             filename = pathlib.Path(chapter_source_input)
             chapt_input_filename = filename.with_suffix('')
@@ -105,7 +105,7 @@ def video_drop_input(event):  # Drag and drop function
 
 
 def update_file_input(*args):  # Drag and drop block of code
-    global chapter_source_input, autofilesave_dir_path, VideoInputQuoted, output, autosavefilename, output_quoted
+    global chapter_source_input, autofilesave_dir_path, VideoInputQuoted, output, autosavefilename, output_quoted, extension_type
     chap_input_entry.configure(state=NORMAL)
     chap_input_entry.delete(0, END)
     chapter_source_input = str(input_dnd.get()).replace("{", "").replace("}", "")
@@ -124,7 +124,7 @@ def update_file_input(*args):  # Drag and drop block of code
             autofilesave_file_path = pathlib.Path(chapter_source_input)  # Command to get file input location
             autofilesave_dir_path = autofilesave_file_path.parents[0]  # Final command to get only the directory
             VideoInputQuoted = '"' + str(pathlib.Path(chapter_source_input)) + '"'
-            chap_input_entry.insert(0, str(input_dnd.get()).replace("{", "").replace("}", ""))
+            chap_input_entry.insert(0, pathlib.Path(str(input_dnd.get()).replace("{", "").replace("}", "")))
             chap_input_entry.configure(state=DISABLED)
             filename = pathlib.Path(chapter_source_input)
             chapt_input_filename = filename.with_suffix('')
@@ -150,7 +150,7 @@ def update_file_input(*args):  # Drag and drop block of code
 input_dnd = StringVar()
 input_dnd.trace('w', update_file_input)
 chap_input_button = HoverButton(chapter_extract, text='Input', command=input_button_commands, foreground='white',
-                           background='#23272A', borderwidth='3', activebackground='grey', width=15)
+                                background='#23272A', borderwidth='3', activebackground='grey', width=15)
 chap_input_button.grid(row=0, column=0, columnspan=1, padx=(10, 5), pady=5, sticky=W + E)
 chap_input_button.drop_target_register(DND_FILES)
 chap_input_button.dnd_bind('<<Drop>>', video_drop_input)
@@ -171,7 +171,7 @@ def output_button_commands():
         chap_output_entry.configure(state=NORMAL)
         chap_output_entry.delete(0, END)
         output_quoted = '"' + str(pathlib.Path(output_window)) + '"'
-        output = output_window
+        output = pathlib.Path(output_window)
         chap_output_entry.insert(0, output)
         chap_output_entry.configure(state=DISABLED)
 
@@ -182,28 +182,28 @@ chap_output_button.grid(row=1, column=0, columnspan=1, padx=(10, 5), pady=(40, 5
 chap_output_entry = Entry(chapter_extract, borderwidth=4, background='#CACACA', state=DISABLED, width=30)
 chap_output_entry.grid(row=1, column=1, columnspan=2, padx=(5, 10), pady=(40, 5), sticky=W + E)
 
-extract_button = HoverButton(chap_extract_win, text='Extract', command=input_button_commands, foreground='white',
-                        background='#23272A', borderwidth='3', activebackground='grey', width=15, state=DISABLED)
+
+def start_job():
+    global output
+    mkvextract = r'"C:\Users\jlw_4\Desktop\mkvtoolnix\mkvextract.exe"'
+    mp4box = r'"C:\Users\jlw_4\Desktop\mp4box.exe"'
+    output_quoted = f'"{output}"'
+
+    if extension_type == '.mp4':
+        finalcommand = '"' + mp4box + ' ' + f'"{chapter_source_input}"' + ' -dump-chap-ogg -out ' + output_quoted + '"'
+    elif extension_type == '.mkv':
+        finalcommand = '"' + mkvextract + ' ' + f'"{chapter_source_input}"' + ' ' + 'chapters -s ' + output_quoted + '"'
+
+    subprocess.check_output('cmd /c ' + finalcommand, universal_newlines=True,
+                            creationflags=subprocess.CREATE_NO_WINDOW)
+    print(output)
+    print(pathlib.Path(output))
+    if pathlib.Path(output).is_file():
+        print('yes maaaaaaam!')
+
+
+extract_button = HoverButton(chap_extract_win, text='Extract', command=start_job, foreground='white',
+                             background='#23272A', borderwidth='3', activebackground='grey', width=15, state=DISABLED)
 extract_button.grid(row=2, column=2, columnspan=1, padx=(20, 20), pady=(40, 10), sticky=W + E)
-
-# mp4box = r"C:\Users\jlw_4\Desktop\mp4box.exe"
-#
-# file1 = r"C:\Users\jlw_4\Desktop\The.Blue.Lagoon.1980.REPACK.BluRay.720p.DD.2.0.x264-BHDStudio.mp4"
-#
-# finalcommand = '"' + mp4box + ' ' + file1 + ' -dump-chap-ogg -std"'
-# finalcommand2 = '"' + mp4box + ' ' + file1 + ' -dump-chap-ogg"'
-# job = subprocess.Popen('cmd /c ' + finalcommand2, universal_newlines=True,
-#                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-#                        creationflags=subprocess.CREATE_NO_WINDOW)
-# auto_chapter_input = job.communicate()
-# test = auto_chapter_input[0]
-# temp_chapter = open(r'C:\Users\jlw_4\Desktop\TESTCHAPTER.txt', 'w')
-# temp_chapter.write(test)
-# temp_chapter.close()
-# print(test)
-
-
-# mkv extract command = C:\Users\jlw_4\Desktop\mkvtoolnix\mkvextract.exe "\\Jlwserver\h\Futurama\Futurama.S01.NTSC.DVD.DD.2.0.MPEG-2.REMUX-RPG\Futurama - 1x01 - Space Pilot 3000.mkv" chapters -s C:\Users\jlw_4\Desktop\mkvchapters.txt
-
 
 chap_extract_win.mainloop()
