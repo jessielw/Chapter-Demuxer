@@ -1,5 +1,5 @@
 # Code needed for Standalone Release-----------------------------------------------------------------------------------
-standalone = True  # Set to false if paired with a main GUI
+standalone = False  # Set to false if paired with a main GUI
 
 
 # ------------------------------------------------------------------------------------------ Code needed for Standalone
@@ -11,6 +11,7 @@ def launch_chapter_demuxer():
     import subprocess, pathlib
     from pymediainfo import MediaInfo
     from configparser import ConfigParser
+    from TkinterDnD2 import TkinterDnD, DND_FILES
 
     global chap_extract_win
 
@@ -22,10 +23,16 @@ def launch_chapter_demuxer():
             chap_extract_win.lift()  # If chapter window exists then bring to top of all other windows
     except(Exception,):  # If it does not exist, create it...
         if standalone:
-            from TkinterDnD2 import TkinterDnD, DND_FILES
             chap_extract_win = TkinterDnD.Tk()  # Main loop with DnD.Tk() module (for drag and drop)
         if not standalone:
             chap_extract_win = Toplevel()  # Program is ready to be paired with another
+
+        # Exit Function ------------
+        def chap_exit_function():
+            chap_extract_win.grab_release()  # Release hold, so main gui can take focus again
+            chap_extract_win.destroy()  # Close chap window
+        # ------------- Exit Function
+
         chap_extract_win.title('Chapter Demuxer 1.0')  # Sets the version of the program
         chap_extract_win.configure(background="#434547")  # Sets gui background color
         window_height = 250  # Gui window height
@@ -35,6 +42,8 @@ def launch_chapter_demuxer():
         x_coordinate = int((screen_width / 2) - (window_width / 2))  # down
         y_coordinate = int((screen_height / 2) - (window_height / 2))  # down
         chap_extract_win.geometry(f'{window_width}x{window_height}+{x_coordinate}+{y_coordinate}')  # opens gui center
+        chap_extract_win.grab_set()  # Keeps window above main root window
+        chap_extract_win.protocol('WM_DELETE_WINDOW', chap_exit_function)  # Code to use exit function for 'X'
 
         chap_extract_win.rowconfigure(3, weight=1)
         chap_extract_win.grid_columnconfigure(2, weight=1)
@@ -79,7 +88,7 @@ def launch_chapter_demuxer():
         def input_button_commands():  # Open file block of code (non drag and drop)
             global VideoInput, autosavefilename, autofilesave_dir_path, VideoInputQuoted, output, detect_video_fps, \
                 fps_entry, output_quoted, extension_type
-            source_input = filedialog.askopenfilename(initialdir="/", title="Select A File",
+            source_input = filedialog.askopenfilename(initialdir="/", title="Select A File", parent=chap_extract_win,
                                                       filetypes=[("Supported Formats", ('.mp4', '.mkv'))])
             chap_input_entry.configure(state=NORMAL)  # Enable chapter input entry
             chap_input_entry.delete(0, END)  # Clears chapter input entry if there is anything there
@@ -89,7 +98,7 @@ def launch_chapter_demuxer():
                 if track.track_type == 'General':
                     detect_chapters = track.count_of_menu_streams  # Checks to see if any chapter tracks exist
             if detect_chapters is None:  # If there is no chapters in input file, show an error message
-                messagebox.showerror(title='Error', message='Input has no chapters')
+                messagebox.showerror(title='Error', message='Input has no chapters', parent=chap_extract_win)
             elif detect_chapters is not None:  # If there is chapters continue
                 if chapter_source_input.endswith(('.mp4', '.mkv')):  # If file is either mp4 or mkv
                     if chapter_source_input.endswith('.mp4'):  #
@@ -112,12 +121,13 @@ def launch_chapter_demuxer():
                     chap_output_entry.insert(0, str(autosave_file_dir))
                     chap_output_entry.configure(state=DISABLED)
                     extract_button.configure(state=NORMAL)
+                    chap_output_button.configure(state=NORMAL)
                     status_label.configure(text='Select Extract')  # Change bottom status label
                 else:
-                    messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
-                                                                             'Unsupported file extension "' +
-                                                                             str(pathlib.Path(
-                                                                                 chapter_source_input).suffix) + '"')
+                    messagebox.showinfo(title='Input Not Supported', parent=chap_extract_win,
+                                        message='Try again with a supported file!\n\n' +
+                                                'Unsupported file extension "' +
+                                                str(pathlib.Path(chapter_source_input).suffix) + '"')
                     extract_button.configure(state=DISABLED)
 
         # -------------------------------------------------------------------------------------- Input Functions Button
@@ -137,7 +147,7 @@ def launch_chapter_demuxer():
                 if track.track_type == 'General':
                     detect_chapters = track.count_of_menu_streams
             if detect_chapters is None:
-                messagebox.showerror(title='Error', message='Input has no chapters')
+                messagebox.showerror(title='Error', message='Input has no chapters', parent=chap_extract_win)
             elif detect_chapters is not None:
                 if chapter_source_input.endswith(('.mp4', '.mkv')):
                     if chapter_source_input.endswith('.mp4'):
@@ -160,12 +170,13 @@ def launch_chapter_demuxer():
                     chap_output_entry.insert(0, str(autosave_file_dir))
                     chap_output_entry.configure(state=DISABLED)
                     extract_button.configure(state=NORMAL)
+                    chap_output_button.configure(state=NORMAL)
                     status_label.configure(text='Select Extract')
                 else:
-                    messagebox.showinfo(title='Input Not Supported', message='Try again with a supported file!\n\n' +
-                                                                             'Unsupported file extension "' +
-                                                                             str(pathlib.Path(
-                                                                                 chapter_source_input).suffix) + '"')
+                    messagebox.showinfo(title='Input Not Supported', parent=chap_extract_win,
+                                        message='Try again with a supported file!\n\n' +
+                                                'Unsupported file extension "' +
+                                                str(pathlib.Path(chapter_source_input).suffix) + '"')
                     extract_button.configure(state=DISABLED)
 
         # ------------------------------------------------------------------------------------- Drag and Drop Functions
@@ -190,7 +201,7 @@ def launch_chapter_demuxer():
             global output, output_quoted
             output_window = filedialog.asksaveasfilename(defaultextension=".txt", initialdir=autofilesave_dir_path,
                                                          title="Select a Save Location", initialfile=autosavefilename,
-                                                         filetypes=[("ogg.txt", "*.txt")])
+                                                         filetypes=[("ogg.txt", "*.txt")], parent=chap_extract_win)
 
             if output_window:
                 chap_output_entry.configure(state=NORMAL)
@@ -202,7 +213,7 @@ def launch_chapter_demuxer():
 
         chap_output_button = HoverButton(chapter_extract, text='Output', command=output_button_commands,
                                          foreground='white', background='#23272A', borderwidth='3',
-                                         activebackground='grey', width=15)
+                                         activebackground='grey', width=15, state=DISABLED)
         chap_output_button.grid(row=1, column=0, columnspan=1, padx=(10, 5), pady=(40, 5), sticky=W + E)
         chap_output_entry = Entry(chapter_extract, borderwidth=4, background='#CACACA', state=DISABLED, width=30)
         chap_output_entry.grid(row=1, column=1, columnspan=2, padx=(5, 10), pady=(40, 5), sticky=W + E)
