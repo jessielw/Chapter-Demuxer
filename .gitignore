@@ -1,0 +1,6 @@
+.idea/
+build/
+dist/
+__pycache__/
+Apps/
+Chapter-Demuxer.spec
