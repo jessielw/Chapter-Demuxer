@@ -4,3 +4,4 @@ dist/
 __pycache__/
 Apps/
 Chapter-Demuxer.spec
+Chapter-Demuxer.exe
