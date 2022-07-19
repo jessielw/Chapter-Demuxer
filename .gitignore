@@ -5,3 +5,4 @@ __pycache__/
 Apps/
 Chapter-Demuxer.spec
 Chapter-Demuxer.exe
+*.zip
