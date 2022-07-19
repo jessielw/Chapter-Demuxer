@@ -11,7 +11,7 @@ def launch_chapter_demuxer():
     import subprocess, pathlib, webbrowser
     from pymediainfo import MediaInfo
     from configparser import ConfigParser
-    from TkinterDnD2 import TkinterDnD, DND_FILES
+    from tkinterdnd2 import TkinterDnD, DND_FILES
     from ctypes import windll
 
     global chap_extract_win
